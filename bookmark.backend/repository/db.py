@@ -43,7 +43,7 @@ class BookDatabase:
         books = cursor.fetchall()
 
         all_books = {
-            "toBeRead" : [],
+            "toRead" : [],
             "reading" : [],
             "read" :[]
         }
