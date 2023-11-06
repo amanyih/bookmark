@@ -33,7 +33,7 @@ const BookColumn = ({
 
   return (
     <Card>
-      <CardHeader>
+      <CardHeader className="border-b-2 border-gray-300 dark:border-gray-800">
         <CardTitle>{title}</CardTitle>
         <CardDescription>{description}</CardDescription>
       </CardHeader>
@@ -42,6 +42,11 @@ const BookColumn = ({
           {books[status].map((book: BookType) => (
             <Book key={book.id} book={book} action={action} />
           ))}
+          {books[status].length === 0 && (
+            <div className="flex justify-center items-center h-[calc(100vh-20rem)] text-gray-400 dark:text-gray-600">
+              No books here
+            </div>
+          )}
         </ScrollArea>
       </CardContent>
     </Card>

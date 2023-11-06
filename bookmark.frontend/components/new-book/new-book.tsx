@@ -93,11 +93,7 @@ const NewBook = () => {
               )}
             />
             <DialogFooter>
-              <Button
-                variant="default"
-                className="mr-2"
-                // onClick={() => console.log("clicked")}
-              >
+              <Button variant="default" className="mr-2">
                 Add Book
               </Button>
               <DialogClose>

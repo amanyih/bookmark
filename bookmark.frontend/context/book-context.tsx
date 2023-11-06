@@ -1,6 +1,8 @@
 "use client";
-import { createContext, useContext, useState } from "react";
+import { createContext, useContext, useEffect, useState } from "react";
 import { BookType as Book, BookStatus } from "@/types/book";
+import { API_URL } from "@/constants/constants";
+import { useToast } from "@/components/ui/use-toast";
 
 interface BookContextProps {
   books: {
@@ -23,33 +25,74 @@ const BookContext = createContext<BookContextProps>({
 });
 
 const BookProvider = ({ children }: { children: React.ReactNode }) => {
+  const { toast } = useToast();
+
+  const showErrorToast = () => {
+    toast({
+      title: "Something went wrong!",
+      description: "Could not fetch books, please try again later.",
+      variant: "destructive",
+      duration: 3000,
+    });
+  };
+  const showSuccessToast = (title: string, description: string) => {
+    toast({
+      title: title,
+      description: description,
+      duration: 3000,
+    });
+  };
   const movingmap = {
     [BookStatus.TOREAD]: BookStatus.READING,
     [BookStatus.READING]: BookStatus.READ,
     [BookStatus.READ]: BookStatus.READ,
   };
   const [books, setBooks] = useState<{ [key in BookStatus]: Book[] }>({
-    [BookStatus.TOREAD]: [
-      {
-        id: 1,
-        title: "Originals",
-        status: BookStatus.TOREAD,
-      },
-      {
-        id: 2,
-        title: "Never Split the Difference",
-        status: BookStatus.TOREAD,
-      },
-    ],
+    [BookStatus.TOREAD]: [],
     [BookStatus.READING]: [],
     [BookStatus.READ]: [],
   });
 
+  useEffect(() => {
+    const getBooks = async () => {
+      try {
+        const res = await fetch(API_URL + "/book");
+        const data = await res.json();
+        setBooks(data);
+      } catch (error) {
+        showErrorToast();
+      }
+    };
+
+    getBooks();
+  }, []);
+
   const addBook = (book: Book) => {
-    console.log("adding book", book);
-    const bookReplica = { ...books };
-    bookReplica[book.status] = [...bookReplica[book.status], book];
-    setBooks(bookReplica);
+    const sendBook = async () => {
+      try {
+        const res = await fetch(API_URL + "/book", {
+          method: "POST",
+          body: JSON.stringify(book),
+          headers: {
+            "Content-Type": "application/json",
+          },
+        });
+        const data = await res.json();
+        return data;
+      } catch (error) {
+        throw new Error("Could not add book");
+      }
+    };
+
+    try {
+      const id = sendBook();
+      showSuccessToast("Book added!", "Book has been added to your list.");
+      const bookReplica = { ...books };
+      bookReplica[book.status] = [...bookReplica[book.status], book];
+      setBooks(bookReplica);
+    } catch (error) {
+      showErrorToast();
+    }
   };
 
   const moveBook = (book: Book) => {
@@ -61,16 +104,58 @@ const BookProvider = ({ children }: { children: React.ReactNode }) => {
     );
     book.status = nxtstatus;
     bookReplica[nxtstatus] = [...bookReplica[nxtstatus], book];
+
+    const updateBook = async () => {
+      try {
+        const res = await fetch(API_URL + `/book/${book.id}`, {
+          method: "PUT",
+          body: JSON.stringify(book),
+          headers: {
+            "Content-Type": "application/json",
+          },
+        });
+        const data = await res.json();
+      } catch (error) {
+        throw new Error("Could not update book");
+      }
+    };
+
+    try {
+      updateBook();
+    } catch (error) {
+      showErrorToast();
+    }
+
     setBooks(bookReplica);
   };
 
   const deleteBook = (book: Book) => {
-    setBooks((prevBooks) => ({
-      ...prevBooks,
-      [book.status]: prevBooks[book.status].filter(
-        (b: Book) => b.id !== book.id
-      ),
-    }));
+    const deleteBook = async () => {
+      try {
+        const res = await fetch(API_URL + `/book/${book.id}`, {
+          method: "DELETE",
+        });
+        const data = await res.json();
+        setBooks((prevBooks) => ({
+          ...prevBooks,
+          [book.status]: prevBooks[book.status].filter(
+            (b: Book) => b.id !== book.id
+          ),
+        }));
+      } catch (error) {
+        throw new Error("Could not delete book");
+      }
+    };
+
+    try {
+      deleteBook();
+      showSuccessToast(
+        "Book deleted!",
+        "Book has been deleted from your list."
+      );
+    } catch (error) {
+      showErrorToast();
+    }
   };
 
   return (

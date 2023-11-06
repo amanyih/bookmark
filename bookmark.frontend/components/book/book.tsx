@@ -12,7 +12,7 @@ interface BookProps {
 const Book = ({ book, action }: BookProps) => {
   const { deleteBook, moveBook } = useBook();
   return (
-    <div className="shadow-md p-4 mb-4 last:mb-0 border-b-2 border-gray-200 dark:border-gray-800 last:border-b-0 flex justify-between items-center">
+    <div className="p-4 mb-4 last:mb-0 border-b-2 border-gray-300 dark:border-gray-800 last:border-b-0 flex justify-between items-center">
       {book.title}
       <div className="flex gap-4 items-center">
         {action && (

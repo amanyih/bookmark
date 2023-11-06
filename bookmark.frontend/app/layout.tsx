@@ -4,6 +4,7 @@ import "./globals.css";
 import Nav from "@/components/nav/nav";
 import { ThemeProvider } from "@/components/theme-provider/theme-provider";
 import { BookProvider } from "../context/book-context";
+import { Toaster } from "@/components/ui/toaster";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -26,6 +27,7 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
+          <Toaster />
           <BookProvider>
             <Nav />
             <main>{children}</main>
