@@ -93,9 +93,11 @@ const NewBook = () => {
               )}
             />
             <DialogFooter>
-              <Button variant="default" className="mr-2">
-                Add Book
-              </Button>
+              <DialogClose>
+                <Button variant="default" className="mr-2">
+                  Add Book
+                </Button>
+              </DialogClose>
               <DialogClose>
                 <Button
                   type="button"
